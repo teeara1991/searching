@@ -20,12 +20,28 @@ class Folders extends React.Component {
   }
 
   render() {
-    const { folders } = this.props;
+    const { folders, handleChangeFolder } = this.props;
+    const renderMenu = items => {
+      return items.map((item: any, index: any) => {
+        return (
+          <li
+            key={item.id}
+            style={{ marginLeft: 10 }}
+            onClick={e => handleChangeFolder(item.id, e)}
+          >
+            <a href="#">{item.name}</a>
+            <ul className="dropdown">
+              {item.subfolders ? renderMenu(item.subfolders) : null}
+            </ul>
+          </li>
+        );
+      });
+    };
+
     return (
-      <div
-        id="folders"
-        dangerouslySetInnerHTML={{ __html: createTree(folders).outerHTML }}
-      />
+      <ul role="navigation" class="nav">
+        {renderMenu(folders)}
+      </ul>
     );
   }
 }

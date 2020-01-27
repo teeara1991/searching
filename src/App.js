@@ -2,63 +2,74 @@ import React from "react";
 import ListImages from "./components/listImages";
 import Folders from "./components/Folders";
 import "./App.css";
-import faker from "faker";
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      folders: [],
-      images: [],
-      filtering: ""
+      filtering: "",
+      curFolderId: 0
     };
-    this.handleChange = this.handleChange.bind(this);
+    this.handleChangeFilter = this.handleChangeFilter.bind(this);
+    this.handleChangeFolder = this.handleChangeFolder.bind(this);
   }
-  handleChange(event) {
+  handleChangeFilter(event) {
     this.setState({ filtering: event.target.value });
   }
-  componentWillMount() {
-    let images = [];
-    for (let i = 0; i < 12; i++) {
-      let url = faker.image.avatar();
-      let tags = faker.random.words().split(" ");
-      let folderId = Math.floor(Math.random() * Math.floor(12));
-      images.push({ url, folderId, tags });
-    }
-    let folders = [];
-    let id = 1;
-    for (let i = 0; i < 4; i++) {
-      folders.push({ id: i, name: faker.system.fileType(), subfolders: [] });
-      for (let j = 0; j < 2; j++) {
-        id = id + 1;
-        folders[i].subfolders.push({
-          id: parseInt(id),
-          name: faker.system.fileType(),
-          subfolders: []
-        });
-      }
-      id = id + 1;
-    }
-    this.setState({ images, folders });
+  handleChangeFolder(id, e) {
+    e.stopPropagation();
+    this.setState({ curFolderId: id });
   }
 
   render() {
+    const { images, folders } = this.props.data;
+    const { curFolderId, filtering } = this.state;
     return (
       <div className="row">
         <div className="column">
           <h1>Папки</h1>
-          <Folders folders={this.state.folders} />
+          <Folders
+            folders={folders}
+            handleChangeFolder={(id, e) => this.handleChangeFolder(id, e)}
+          />
         </div>
         <div className="column">
           <h1>Картинки</h1>
-          <input type="text" onChange={this.handleChange} />
+          <input type="text" onChange={this.handleChangeFilter} />
           <ListImages
-            filter={this.state.filtering}
-            images={this.state.images}
+            filter={filtering}
+            images={images}
+            id={this._folders(this.state.curFolderId)}
           />
         </div>
       </div>
     );
+  }
+  _id(folder, id) {
+    function fun(folder) {
+      if (folder.subfolders) {
+        folder.map(sub => {
+          return fun(folder.subfolders);
+        });
+      }
+      return folder.id;
+    }
+  }
+  _folders(id) {
+    function fun(folders, id) {
+      if (folders.id === id) {
+        return folders;
+      }
+      if (folders.subfolders) {
+        for (let item of folders.subfolders) {
+          if (item.id === id) {
+            return item;
+          }
+          return fun(item.subfolders, id);
+        }
+      }
+    }
+    console.log(this.props.data.folders.map(folder => fun(folder, id)));
   }
 }
 
