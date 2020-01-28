@@ -8,7 +8,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       filtering: "",
-      curFolderId: 0
+      curFolderId: ""
     };
     this.handleChangeFilter = this.handleChangeFilter.bind(this);
     this.handleChangeFolder = this.handleChangeFolder.bind(this);
@@ -31,6 +31,7 @@ class App extends React.Component {
           <Folders
             folders={folders}
             handleChangeFolder={(id, e) => this.handleChangeFolder(id, e)}
+            curFolderId={curFolderId}
           />
         </div>
         <div className="column">
@@ -39,21 +40,25 @@ class App extends React.Component {
           <ListImages
             filter={filtering}
             images={images}
-            id={this._folders(this.state.curFolderId)}
+            id={this._folders(curFolderId)}
           />
         </div>
       </div>
     );
   }
   _id(folder, id) {
+    var ids = [];
     function fun(folder) {
-      if (folder.subfolders) {
-        folder.map(sub => {
-          return fun(folder.subfolders);
-        });
-      }
-      return folder.id;
+      folder.map(item => {
+        if (item.subfolders.length > 0) {
+          return fun(item.subfolders);
+        }
+        ids.push(item.id);
+        return item.id;
+      });
     }
+    fun(folder, id);
+    return ids.concat(id);
   }
   _folders(id) {
     function fun(folders, id) {
@@ -69,7 +74,13 @@ class App extends React.Component {
         }
       }
     }
-    console.log(this.props.data.folders.map(folder => fun(folder, id)));
+
+    return this._id(
+      this.props.data.folders
+        .map(folder => fun(folder, id))
+        .filter(folder => folder),
+      id
+    );
   }
 }
 
