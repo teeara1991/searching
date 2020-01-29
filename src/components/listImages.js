@@ -13,7 +13,12 @@ function ListImages(props) {
                 new RegExp(filter, "g").test(image.tags.join(" ")) === true
             )
             .map((image, id) => <Image key={id} image={image} />)
-        : images.map((image, id) => <Image key={id} image={image} />)}
+        : images
+            .filter(
+              image =>
+                new RegExp(filter, "g").test(image.tags.join(" ")) === true
+            )
+            .map((image, id) => <Image key={id} image={image} />)}
     </div>
   );
 }

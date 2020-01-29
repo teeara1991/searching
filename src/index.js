@@ -4,6 +4,12 @@ import "./index.css";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import faker from "faker";
+import { Provider } from "react-redux";
+import configureStore from "./configureStore";
+import { storeGeneraror } from "./action/action";
+
+const store = configureStore();
+store.dispatch(storeGeneraror(generateFake()));
 
 function generateFake() {
   let images = [];
@@ -30,7 +36,12 @@ function generateFake() {
   return { images, folders };
 }
 
-ReactDOM.render(<App data={generateFake()} />, document.getElementById("root"));
+ReactDOM.render(
+  <Provider store={store}>
+    <App data={generateFake()} />
+  </Provider>,
+  document.getElementById("root")
+);
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
