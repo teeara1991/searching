@@ -3,7 +3,7 @@ import { STORE_GENERATOR, CHANGE_TAG, CHANGE_FOLDER } from "../action/action";
 const initialState = {
   images: [],
   folders: [],
-  folderId: "",
+  folderId: -1,
   curTag: ""
 };
 

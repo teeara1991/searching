@@ -1,59 +1,42 @@
 import React from "react";
-import ListImages from "./components/listImages";
-import Folders from "./components/Folders";
+import Image from "./components/Image";
+import Folder from "./components/Folder";
 import { connect } from "react-redux";
 import "./App.css";
 import { changeTag, changeFolder } from "./action/action";
+import { getFilteredImages } from "./selectors";
 
 class App extends React.Component {
-  constructor(props) {
-    super(props);
-  }
-
   render() {
-    const { images, folders, curTag, folderId } = this.props.data;
+    const { images, folders } = this.props.data;
     const { changeTag, changeFolder } = this.props;
 
     return (
       <div className="row">
         <div className="column">
           <h1>Папки</h1>
-          <Folders
-            folders={folders}
-            handleChangeFolder={changeFolder}
-            curFolderId={folderId}
-          />
+          {folders.map((item, index) => (
+            <Folder
+              key={index}
+              folder={item}
+              handleChangeFolder={changeFolder}
+            />
+          ))}
         </div>
         <div className="column">
           <h1>Картинки</h1>
           <input type="text" onChange={changeTag} />
-          <ListImages
-            filter={curTag}
-            images={images}
-            id={this._getId(folders, folderId)}
-          />
+          {images.map((image, index) => (
+            <Image key={index} image={image} />
+          ))}
         </div>
       </div>
-    );
-  }
-  _getId(array, id) {
-    function func(array) {
-      return array.reduce(function(r, a) {
-        r.push({ id: a.id, name: a.name, subfolders: a.subfolders });
-        if (a.subfolders && Array.isArray(a.subfolders)) {
-          r = r.concat(func(a.subfolders));
-        }
-        return r;
-      }, []);
-    }
-    return func(func(array).filter(folder => folder.id === id)).map(
-      folder => folder.id
     );
   }
 }
 
 const mapStateToProps = (state, ownProps) => ({
-  data: state
+  data: { ...state, images: getFilteredImages(state) }
 });
 const mapDispatchToProps = dispatch => {
   return {
